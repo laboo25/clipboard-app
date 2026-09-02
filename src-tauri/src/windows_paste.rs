@@ -18,9 +18,10 @@ pub mod windows {
     use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
         SendInput, INPUT, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, VK_CONTROL, VK_V,
     };
+    use windows_sys::Win32::System::Threading::{AttachThreadInput, GetCurrentThreadId};
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         GetForegroundWindow, SetForegroundWindow, ShowWindow, SW_RESTORE,
-        GetWindowThreadProcessId, AttachThreadInput,
+        GetWindowThreadProcessId,
     };
 
     static LAST_FOCUSED_HWND: AtomicIsize = AtomicIsize::new(0);
@@ -50,8 +51,8 @@ pub mod windows {
 
         unsafe {
             // Optional: attach thread input to ensure robust focus stealing bypass on Windows 10/11
-            let foreground_hwnd = GetForegroundWindow();
-            let cur_thread_id = windows_sys::Win32::System::Threading::GetCurrentThreadId();
+            let _foreground_hwnd = GetForegroundWindow();
+            let cur_thread_id = GetCurrentThreadId();
             let target_thread_id = GetWindowThreadProcessId(hwnd, std::ptr::null_mut());
 
             if cur_thread_id != target_thread_id && target_thread_id != 0 {
